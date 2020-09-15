@@ -30,30 +30,35 @@ namespace Api.Controllers
 
         // GET: api/Livros/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Livro>> GetLivro([FromRoute]Guid id)
+        public async Task<ActionResult<LivroResponse>> GetLivro([FromRoute]Guid id)
         {
-            var livro = await _context.Livros.FindAsync(id);
+
+            var livro = await _context.Livros.Include(x => x.Autor).FirstOrDefaultAsync(x => x.Id == id);
 
             if (livro == null)
             {
                 return NotFound();
             }
 
-            return livro;
+            LivroResponse livroa = new LivroResponse { Id = livro.Id, Ano = livro.Ano, Autor = livro.Autor, ISBN = livro.ISBN, Titulo = livro.Titulo };
+
+            return livroa;
         }
 
         // PUT: api/Livros/5
         // To protect from overposting attacks, enable the specific properties you want to bind to, for
         // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutLivro([FromRoute] Guid id, [FromBody] Livro livro)
+        public async Task<IActionResult> PutLivro([FromRoute] Guid id, [FromBody] LivroResponse livro)
         {
-            if (id != livro.Id)
+            livro.Autor = _context.Autores.FirstOrDefault(x => x.Id == livro.Autor.Id);
+            Livro livroa = new Livro { Id = livro.Id ,Ano = livro.Ano, Autor = livro.Autor, ISBN = livro.ISBN, Titulo = livro.Titulo };
+            if (id != livroa.Id)
             {
                 return BadRequest();
             }
 
-            _context.Entry(livro).State = EntityState.Modified;
+            _context.Entry(livroa).State = EntityState.Modified;
 
             try
             {

@@ -38,8 +38,8 @@ namespace Web.Controllers
         {
             var client = new RestClient();
 
-            var request = new RestRequest("https://localhost:44343/api/livros" + id, DataFormat.Json);
-            var response = client.Get<Livro>(request);
+            var request = new RestRequest("https://localhost:44343/api/livros/" + id, DataFormat.Json);
+            var response = client.Get<LivroResponse>(request);
 
             return View(response.Data);
         }
@@ -91,6 +91,11 @@ namespace Web.Controllers
 
             var request = new RestRequest("https://localhost:44343/api/livros/" + id, DataFormat.Json);
             var response = client.Get<Livro>(request);
+
+            var requestAutor = new RestRequest("https://localhost:44343/api/autores", DataFormat.Json);
+            var responseAutor = client.Get<List<Autor>>(requestAutor);
+
+            ViewBag.Autores = responseAutor.Data;
 
             return View(response.Data);
         }

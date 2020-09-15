@@ -80,6 +80,7 @@ namespace Api.Controllers
         [HttpPost]
         public async Task<ActionResult<Autor>> PostAutor([FromBody] Autor autor)
         {
+            autor.DtAniversario = autor.DtAniversario.Date;
             _context.Autores.Add(autor);
             await _context.SaveChangesAsync();
 

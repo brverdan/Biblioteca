@@ -3,14 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Context.Repository;
+using Domain;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Repository.Autor;
+using Repository.Conta;
+using Services.Account;
 
 namespace Web
 {
@@ -29,11 +34,33 @@ namespace Web
             services.AddControllersWithViews();
 
             services.AddScoped<AutorRepository>();
+            services.AddTransient<IContaRepository, ContaRepository>();
+            services.AddTransient<IUserStore<Conta>, ContaRepository>();
+            services.AddTransient<IRoleStore<Perfil>, PerfilRepository>();
+            services.AddTransient<IContaIdentityManager, ContaIdentityManager>();
 
             services.AddDbContext<BibliotecaContext>(opt =>
             {
                 opt.UseSqlServer(Configuration.GetConnectionString("BibliotecaConnection"));
             });
+
+            services.AddIdentity<Conta, Perfil>()
+               .AddDefaultTokenProviders();
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = "/Contas/Login";
+                options.AccessDeniedPath = "/Contas/AccessDenied";
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+                options.ReturnUrlParameter = CookieAuthenticationDefaults.ReturnUrlParameter;
+            });
+
+            services.AddSession(option => {
+                option.Cookie.Name = "Token";
+                option.Cookie.IsEssential = true;
+                option.IOTimeout = TimeSpan.FromMinutes(60);
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -54,6 +81,9 @@ namespace Web
 
             app.UseRouting();
 
+            app.UseSession();
+
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

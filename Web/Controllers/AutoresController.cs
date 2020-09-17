@@ -24,9 +24,10 @@ namespace Web.Controllers
         public ActionResult Index()
         {
             var client = new RestClient();
+            var key = HttpContext.Session.GetString("Token");
 
             var request = new RestRequest("https://localhost:44343/api/autores", DataFormat.Json);
-            var response = client.Get<List<Autor>>(request);
+            var response = client.Get<List<Autor>>(request.AddHeader("Authorization", "Bearer " + KeyValue(key)));
 
             return View(response.Data);
         }
@@ -36,8 +37,10 @@ namespace Web.Controllers
         {
 
             var client = new RestClient();
+
+            var key = HttpContext.Session.GetString("Token");
             var request = new RestRequest("https://localhost:44343/api/autores/" + id, DataFormat.Json);
-            var response = client.Get<Autor>(request);
+            var response = client.Get<Autor>(request.AddHeader("Authorization", "Bearer " + KeyValue(key)));
 
             return View(response.Data);
         }
@@ -60,10 +63,11 @@ namespace Web.Controllers
 
                     var client = new RestClient();
 
+                    var key = HttpContext.Session.GetString("Token");
                     var request = new RestRequest("https://localhost:44343/api/autores", DataFormat.Json);
 
                     request.AddJsonBody(autor);
-                    var response = client.Post<Autor>(request);
+                    var response = client.Post<Autor>(request.AddHeader("Authorization", "Bearer " + KeyValue(key)));
 
                     return Redirect("/");
                 }
@@ -81,9 +85,10 @@ namespace Web.Controllers
         {
             var client = new RestClient();
 
+            var key = HttpContext.Session.GetString("Token");
             var request = new RestRequest("https://localhost:44343/api/autores/" + id, DataFormat.Json);
 
-            var response = client.Get<Autor>(request);
+            var response = client.Get<Autor>(request.AddHeader("Authorization", "Bearer " + KeyValue(key)));
 
             return View(response.Data);
         }
@@ -97,10 +102,12 @@ namespace Web.Controllers
             {
                 var client = new RestClient();
 
+                var key = HttpContext.Session.GetString("Token");
+
                 var request = new RestRequest("https://localhost:44343/api/autores/" + id, DataFormat.Json);
 
                 request.AddJsonBody(autor);
-                var response = client.Put<Autor>(request);
+                var response = client.Put<Autor>(request.AddHeader("Authorization", "Bearer " + KeyValue(key)));
 
                 return RedirectToAction(nameof(Index));
             }
@@ -117,7 +124,9 @@ namespace Web.Controllers
 
             var request = new RestRequest("https://localhost:44343/api/autores/" + id, DataFormat.Json);
 
-            var response = client.Get<Autor>(request);
+            var key = HttpContext.Session.GetString("Token");
+
+            var response = client.Get<Autor>(request.AddHeader("Authorization", "Bearer " + KeyValue(key)));
 
             return View(response.Data);
         }
@@ -128,8 +137,10 @@ namespace Web.Controllers
         public ActionResult Delete(Guid id, Autor autor)
         {
             var client = new RestClient();
+
+            var key = HttpContext.Session.GetString("Token");
             var request = new RestRequest("https://localhost:44343/api/autores/" + id, DataFormat.Json);
-            var response = client.Get<Autor>(request);
+            var response = client.Get<Autor>(request.AddHeader("Authorization", "Bearer " + KeyValue(key)));
 
             autor = response.Data;
 
@@ -142,12 +153,12 @@ namespace Web.Controllers
                     {
                         var requestLivro = new RestRequest("https://localhost:44343/api/livros/" + item.Id, DataFormat.Json);
 
-                        var responseLivro = client.Delete<Livro>(requestLivro);
+                        var responseLivro = client.Delete<Livro>(requestLivro.AddHeader("Authorization", "Bearer " + KeyValue(key)));
                     }
 
                     request = new RestRequest("https://localhost:44343/api/autores/" + id, DataFormat.Json);
 
-                    response = client.Delete<Autor>(request);
+                    response = client.Delete<Autor>(request.AddHeader("Authorization", "Bearer " + KeyValue(key)));
 
                     transaction.Commit();
                 }
@@ -157,6 +168,15 @@ namespace Web.Controllers
                 }
             }
             return Redirect("/");
+        }
+        public string KeyValue(string key)
+        {
+            string[] peloAmorDeDeusFunciona = key.Split(":");
+            string[] agrVai = peloAmorDeDeusFunciona[1].Split("\\");
+            string[] agrVaiPF = agrVai[0].Split("}");
+            string[] agrVaiPF2 = agrVaiPF[0].Split('"');
+
+            return agrVaiPF2[1];
         }
     }
 }

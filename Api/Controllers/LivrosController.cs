@@ -7,11 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Context.Repository;
 using Domain;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Api.Controllers
 {
     [Route("api/Livros")]
     [ApiController]
+    [Authorize]
     public class LivrosController : ControllerBase
     {
         private readonly BibliotecaContext _context;

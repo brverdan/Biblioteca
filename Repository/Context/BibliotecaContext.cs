@@ -12,6 +12,8 @@ namespace Context.Repository
     {
         public DbSet<Autor> Autores { get; set; }
         public DbSet<Livro> Livros { get; set; }
+        public DbSet<Conta> Contas { get; set; }
+        public DbSet<Perfil> Perfis { get; set; }
 
         public BibliotecaContext(DbContextOptions<BibliotecaContext> options) : base (options)
         {
@@ -21,6 +23,8 @@ namespace Context.Repository
         {
             modelBuilder.ApplyConfiguration(new AutorMap());
             modelBuilder.ApplyConfiguration(new LivroMap());
+            modelBuilder.ApplyConfiguration(new ContaMap());
+            modelBuilder.ApplyConfiguration(new PerfilMap());
 
             base.OnModelCreating(modelBuilder);
         }
